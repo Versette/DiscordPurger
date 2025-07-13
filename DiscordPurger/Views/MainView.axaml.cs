@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace DiscordPurger;
+namespace DiscordPurger.Views;
 
 public partial class MainView : UserControl
 {

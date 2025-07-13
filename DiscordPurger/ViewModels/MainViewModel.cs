@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -12,7 +12,6 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DiscordMessageManager.Models;
-using DiscordMessageManager.Models.Channels;
 using DiscordMessageManager.Services;
 using DiscordPurger.Models;
 using DiscordPurger.Services;
@@ -24,7 +23,6 @@ public partial class MainViewModel : ViewModelBase
     private readonly Timer _filterTimer;
     private readonly SemaphoreSlim _uiSema = new(1, 1);
     private CancellationTokenSource? _cancelToken;
-    private CancellationTokenSource? _loadCancelToken;
     private DataPackage? _dataPackage;
 
     [ObservableProperty] private string _dataPath = "";
@@ -35,14 +33,13 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private bool _isLoggedIn;
     [ObservableProperty] private bool _isPurging;
-    public NotificationService NotificationService { get; } = new();
-    public LoginViewModel LoginViewModel { get; } = new();
+    private CancellationTokenSource? _loadCancelToken;
     private DiscordMessageManager.DiscordMessageManager? _msgManager;
     [ObservableProperty] private int _processed;
     [ObservableProperty] private double _progress;
     [ObservableProperty] private double _purgeProgress;
     [ObservableProperty] private string _searchText = "";
-    [ObservableProperty] private string _status = "Ready";
+    [ObservableProperty] private string _status = "No package selected...";
     [ObservableProperty] private string _token = "";
     [ObservableProperty] private User? _user;
 
@@ -55,6 +52,9 @@ public partial class MainViewModel : ViewModelBase
         StartCmd = new AsyncRelayCommand(Start, () => IsLoaded && IsLoggedIn && SelectedMessages.Any() && !IsPurging);
         StopCmd = new RelayCommand(Stop, () => IsPurging);
     }
+
+    public NotificationService NotificationService { get; } = new();
+    public LoginViewModel LoginViewModel { get; } = new();
 
     public ObservableCollection<ChannelViewModel> Channels { get; } = [];
     public ObservableCollection<ChannelViewModel> FilteredChannels { get; } = [];
@@ -78,7 +78,6 @@ public partial class MainViewModel : ViewModelBase
     {
         if (c != null) c.IsSelected = !c.IsSelected;
     });
-
 
 
     partial void OnIsLoadingChanged(bool value)
@@ -114,7 +113,7 @@ public partial class MainViewModel : ViewModelBase
         _loadCancelToken?.Cancel();
         _loadCancelToken = new CancellationTokenSource();
         var cancellationToken = _loadCancelToken.Token;
-        
+
         try
         {
             // Browse for file
@@ -132,7 +131,7 @@ public partial class MainViewModel : ViewModelBase
 
             var filePath = files[0].Path.LocalPath;
             DataPath = filePath;
-            
+
             if (!File.Exists(filePath))
             {
                 Status = "File not found";
@@ -142,7 +141,7 @@ public partial class MainViewModel : ViewModelBase
             // Load the package asynchronously
             IsLoading = true;
             Progress = 0;
-            
+
             // Get file size for display
             var fileInfo = new FileInfo(filePath);
             var fileSizeMB = fileInfo.Length / (1024.0 * 1024.0);
@@ -152,16 +151,16 @@ public partial class MainViewModel : ViewModelBase
             var progressReporter = new Progress<DataPackageProgress>(progress =>
             {
                 if (cancellationToken.IsCancellationRequested) return;
-                
+
                 Dispatcher.UIThread.Post(() =>
                 {
                     Progress = progress.PercentageComplete;
                     Status = progress.StatusMessage;
                 });
             });
-            
+
             _dataPackage = await DataPackageReader.ReadDataPackageAsync(filePath, progressReporter, cancellationToken);
-            
+
             var totalChannels = _dataPackage.MessageChannels.Length;
             var totalMessages = _dataPackage.MessageChannels.Sum(c => c.Messages.Length);
 
@@ -195,10 +194,7 @@ public partial class MainViewModel : ViewModelBase
                 // Add all ViewModels to UI in one batch
                 Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    foreach (var vm in channelViewModels)
-                    {
-                        Channels.Add(vm);
-                    }
+                    foreach (var vm in channelViewModels) Channels.Add(vm);
                     Progress = 100;
                     Status = $"Loaded {totalChannels} channels";
                 });
@@ -208,7 +204,7 @@ public partial class MainViewModel : ViewModelBase
             {
                 Filter();
                 IsLoaded = true;
-                Status = $"Loaded {Channels.Sum(c => c.Count):N0} messages from {Channels.Count} channels";
+                Status = DataPath;
                 OnPropertyChanged(nameof(Stats));
             });
         }
@@ -232,18 +228,18 @@ public partial class MainViewModel : ViewModelBase
     private void ShowLogin()
     {
         LoginViewModel.Show();
-        
+
         // Subscribe to login completion
         LoginViewModel.PropertyChanged += OnLoginViewModelPropertyChanged;
     }
-    
-    private void OnLoginViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+
+    private void OnLoginViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(LoginViewModel.IsVisible) && !LoginViewModel.IsVisible)
         {
             // Unsubscribe to avoid memory leaks
             LoginViewModel.PropertyChanged -= OnLoginViewModelPropertyChanged;
-            
+
             // Check if login was successful
             if (LoginViewModel.AuthUser != null)
             {
@@ -285,7 +281,7 @@ public partial class MainViewModel : ViewModelBase
                     }
 
                     Status = $"Purging: {Processed}/{p.TotalCount} ({PurgeProgress:F0}%)";
-                    
+
                     var notificationType = p.LastResult switch
                     {
                         MessageDeletionResult.Deleted => NotificationType.Success,
@@ -294,7 +290,7 @@ public partial class MainViewModel : ViewModelBase
                         MessageDeletionResult.Timeout => NotificationType.Error,
                         _ => NotificationType.Info
                     };
-                    
+
                     NotificationService.AddNotification(
                         $"[{p.LastResult}] {p.LastMessage.Channel.Name}: {p.LastMessage.Id}",
                         notificationType);

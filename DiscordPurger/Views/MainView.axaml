@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:DiscordPurger.Controls"
              xmlns:viewModels="clr-namespace:DiscordPurger.ViewModels"
-             x:Class="DiscordPurger.MainView"
+             x:Class="DiscordPurger.Views.MainView"
              x:DataType="viewModels:MainViewModel">
 
 
@@ -15,50 +15,28 @@
         </Grid.RowDefinitions>
 
         <!-- Warning Header -->
-        <Border Grid.Row="0" Classes="DarkPanel" Margin="0,0,0,4"
+        <Border Grid.Row="0" Classes="DarkPanel" Margin="0,0,0,8"
                 BorderBrush="#FF0000" BorderThickness="1"
                 Background="#4D0000"
                 CornerRadius="3"
                 Padding="0">
-            <StackPanel Margin="4,1,4,1" Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBlock Text="⚠" FontSize="18" Foreground="White" FontWeight="Bold"
-                           VerticalAlignment="Center" Margin="0,0,4,0" />
+            <StackPanel Margin="4,1,4,1">
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Text="⚠" FontSize="18" Foreground="White" FontWeight="Bold"
+                               VerticalAlignment="Center" Margin="0,0,4,0" />
+
+                    <TextBlock
+                        Text="WARNING"
+                        FontSize="14" Foreground="White" TextWrapping="Wrap"
+                        TextAlignment="Center" FontWeight="SemiBold" VerticalAlignment="Center" />
+                </StackPanel>
 
                 <TextBlock
-                    Text="WARNING: Any tool that automates actions on Discord user accounts can lead to account termination under Discord's self-bot policy."
+                    Text="Any tool that automates actions on Discord user accounts can lead to account termination under Discord's self-bot policy."
                     FontSize="14" Foreground="White" TextWrapping="Wrap"
                     TextAlignment="Center" FontWeight="SemiBold" VerticalAlignment="Center" />
             </StackPanel>
         </Border>
-
-        <!-- Data Package Section -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,8">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Text="Data Package:" VerticalAlignment="Center" Margin="0,0,10,0"
-                           Foreground="{DynamicResource TextBrush}" />
-                <TextBlock Grid.Column="1" Foreground="{DynamicResource TextBrush}"
-                           VerticalAlignment="Center" Margin="0,0,10,0">
-                    <TextBlock.Text>
-                        <Binding Path="DataPath">
-                            <Binding.FallbackValue>No package selected...</Binding.FallbackValue>
-                        </Binding>
-                    </TextBlock.Text>
-                </TextBlock>
-                <Button Grid.Column="2" Content="Load Package" Command="{Binding LoadCmd}"
-                        Classes="DarkButton" MinWidth="100" />
-            </Grid>
-
-            <TextBlock Text="{Binding Status}" FontWeight="Bold" Foreground="{DynamicResource TextBrush}"
-                       Margin="0,8,0,4" />
-            <ProgressBar IsVisible="{Binding IsLoading}" Value="{Binding Progress}" Maximum="100" Height="6"
-                         Background="#333" Foreground="{DynamicResource AccentBrush}" />
-        </StackPanel>
 
         <!-- Main Content -->
         <Grid Grid.Row="2" IsEnabled="{Binding IsLoaded}">
@@ -138,57 +116,85 @@
                                         DataContext="{Binding NotificationService}" />
         </Grid>
 
-        <!-- Purge Section -->
-        <StackPanel Grid.Row="3" Margin="0,8,0,0" IsEnabled="{Binding IsLoaded}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
 
-                <TextBlock Text="User:" VerticalAlignment="Center" Margin="0,0,8,0"
-                           Foreground="{DynamicResource TextBrush}" />
+        <StackPanel Grid.Row="3">
+            <!-- Data Package Section -->
+            <StackPanel Margin="0,8,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <!-- User Info -->
-                <Border Grid.Column="1" IsVisible="{Binding IsLoggedIn}" Classes="DarkPanel" Padding="8"
-                        Margin="0,0,8,0">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="28" Height="28" CornerRadius="14" Background="#666" ClipToBounds="True"
-                                Margin="0,0,8,0">
-                            <Image Source="{Binding User.AvatarUrl}" Width="28" Height="28" Stretch="UniformToFill" />
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{Binding User.DisplayName}" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextBrush}" FontSize="12" />
-                            <TextBlock Text="{Binding User.Username, StringFormat='@{0}'}" FontSize="10"
-                                       Foreground="{DynamicResource SubtleBrush}" />
-                        </StackPanel>
+                    <TextBlock Text="Data Package:" VerticalAlignment="Center" Margin="0,0,10,0"
+                               Foreground="{DynamicResource TextBrush}" />
+                    <TextBlock Grid.Column="1" Text="{Binding Status}" Foreground="{DynamicResource TextBrush}"
+                               VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <!-- Login Button -->
+                        <Button Content="Load Package" Command="{Binding LoadCmd}"
+                                Classes="DarkButton" MinWidth="100" />
+
+                        <Button Content="Login" Command="{Binding LoginCmd}"
+                                IsVisible="{Binding !IsLoggedIn}"
+                                Classes="DarkButton" MinWidth="90" Height="32" Margin="0,0,8,0" />
+
+                        <Button Content="Start Purge" Command="{Binding StartCmd}" MinWidth="90"
+                                Height="32"
+                                Margin="8,0"
+                                Background="#330000" Foreground="{DynamicResource TextBrush}"
+                                BorderBrush="{DynamicResource DangerBrush}" BorderThickness="2" />
+
+                        <Button Content="Stop" Command="{Binding StopCmd}" IsVisible="{Binding IsPurging}"
+                                Classes="DarkButton" MinWidth="75" Height="32" />
                     </StackPanel>
-                </Border>
+                </Grid>
 
-                <!-- Login Button -->
-                <Button Grid.Column="1" Content="Login" Command="{Binding LoginCmd}" IsVisible="{Binding !IsLoggedIn}"
-                        Classes="DarkButton" MinWidth="90" Height="32" Margin="0,0,8,0" />
+                <ProgressBar IsVisible="{Binding IsLoading}" Value="{Binding Progress}" Maximum="100" Height="6"
+                             Background="#333" Foreground="{DynamicResource AccentBrush}" />
+            </StackPanel>
 
-                <Button Grid.Column="2" Content="Start Purge" Command="{Binding StartCmd}" MinWidth="90" Height="32"
-                        Margin="8,0"
-                        Background="#330000" Foreground="{DynamicResource TextBrush}"
-                        BorderBrush="{DynamicResource DangerBrush}" BorderThickness="2" />
-                <Button Grid.Column="3" Content="Stop" Command="{Binding StopCmd}" IsVisible="{Binding IsPurging}"
-                        Classes="DarkButton" MinWidth="75" Height="32" />
-            </Grid>
+            <!-- Purge Section -->
+            <StackPanel Margin="0,8,0,0" IsEnabled="{Binding IsLoaded}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-            <StackPanel IsVisible="{Binding IsPurging}" Margin="0,8,0,0">
-                <ProgressBar Value="{Binding PurgeProgress}" Maximum="100" Height="22" />
-                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                    <TextBlock Text="{Binding Deleted, StringFormat='✓ {0}'}"
-                               Foreground="{DynamicResource SuccessBrush}" Margin="0,0,20,0" />
-                    <TextBlock Text="{Binding Failed, StringFormat='✗ {0}'}" Foreground="{DynamicResource ErrorBrush}"
-                               Margin="0,0,20,0" />
-                    <TextBlock Text="{Binding Processed, StringFormat='◦ {0}'}"
-                               Foreground="{DynamicResource InfoBrush}" />
+                    <TextBlock Text="User:" VerticalAlignment="Center" Margin="0,0,8,0"
+                               Foreground="{DynamicResource TextBrush}" />
+
+                    <!-- User Info -->
+                    <Border Grid.Column="1" IsVisible="{Binding IsLoggedIn}" Classes="DarkPanel" Padding="8"
+                            Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="28" Height="28" CornerRadius="14" Background="#666" ClipToBounds="True"
+                                    Margin="0,0,8,0">
+                                <Image Source="{Binding User.AvatarUrl}" Width="28" Height="28" Stretch="UniformToFill" />
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding User.DisplayName}" FontWeight="Bold"
+                                           Foreground="{DynamicResource TextBrush}" FontSize="12" />
+                                <TextBlock Text="{Binding User.Username, StringFormat='@{0}'}" FontSize="10"
+                                           Foreground="{DynamicResource SubtleBrush}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <StackPanel IsVisible="{Binding IsPurging}" Margin="0,8,0,0">
+                    <ProgressBar Value="{Binding PurgeProgress}" Maximum="100" Height="22" />
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding Deleted, StringFormat='✓ {0}'}"
+                                   Foreground="{DynamicResource SuccessBrush}" Margin="0,0,20,0" />
+                        <TextBlock Text="{Binding Failed, StringFormat='✗ {0}'}"
+                                   Foreground="{DynamicResource ErrorBrush}"
+                                   Margin="0,0,20,0" />
+                        <TextBlock Text="{Binding Processed, StringFormat='◦ {0}'}"
+                                   Foreground="{DynamicResource InfoBrush}" />
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

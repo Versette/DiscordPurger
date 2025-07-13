@@ -1,8 +1,10 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using DiscordPurger.ViewModels;
+using DiscordPurger.Views;
 
-namespace DiscordPurger.Views;
+namespace DiscordPurger;
 
 public partial class MainWindow : Window
 {
@@ -18,12 +20,9 @@ public partial class MainWindow : Window
 
         // Handle when DataContext changes
         DataContextChanged += (s, e) => SetTopLevelOnMainView();
-        
+
         // Also monitor the MainView's DataContext changes
-        if (Content is MainView mainView)
-        {
-            mainView.DataContextChanged += (s, e) => SetTopLevelOnMainView();
-        }
+        if (Content is MainView mainView) mainView.DataContextChanged += (s, e) => SetTopLevelOnMainView();
     }
 
     private void SetTopLevelOnMainView()
@@ -31,18 +30,13 @@ public partial class MainWindow : Window
         if (Content is MainView mainView)
         {
             // Try to get the MainViewModel from the MainView's DataContext
-            if (mainView.DataContext is ViewModels.MainViewModel viewModel)
-            {
+            if (mainView.DataContext is MainViewModel viewModel)
                 viewModel.TopLevel = this;
-            }
             // Also try to get it from the Window's DataContext
-            else if (DataContext is ViewModels.MainViewModel vm)
-            {
-                vm.TopLevel = this;
-            }
+            else if (DataContext is MainViewModel vm) vm.TopLevel = this;
         }
         // Fallback: try to get it directly from Window's DataContext
-        else if (DataContext is ViewModels.MainViewModel windowVm)
+        else if (DataContext is MainViewModel windowVm)
         {
             windowVm.TopLevel = this;
         }
@@ -50,10 +44,7 @@ public partial class MainWindow : Window
 
     private void TitleBar_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            BeginMoveDrag(e);
-        }
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) BeginMoveDrag(e);
     }
 
     private void MinimizeButton_Click(object? sender, RoutedEventArgs e)
