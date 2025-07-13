@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -19,27 +20,29 @@ public partial class ChannelViewModel : ViewModelBase
     [ObservableProperty] private bool _isVisible;
     [ObservableProperty] private string _messageSearchText = "";
     
-    public ObservableCollection<MessageItemViewModel> Messages { get; } = new();
-    public ObservableCollection<MessageItemViewModel> FilteredMessages { get; } = new();
+    private bool _isClosing;
+    public bool IsClosing
+    {
+        get => _isClosing;
+        set => SetProperty(ref _isClosing, value);
+    }
 
     public ChannelViewModel(IMessageChannel channel)
     {
         _channel = channel;
         _selection = new bool[channel.Messages.Length];
-        
+
         // Initialize message view models
         foreach (var msg in channel.Messages)
         {
             var msgVM = new MessageItemViewModel(msg);
-            msgVM.PropertyChanged += (_, e) => {
-                if (e.PropertyName == nameof(MessageItemViewModel.IsSelected))
-                {
-                    UpdateSelection();
-                }
+            msgVM.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(MessageItemViewModel.IsSelected)) UpdateSelection();
             };
             Messages.Add(msgVM);
         }
-        
+
         FilterMessages();
         InitializeCommands();
     }
@@ -52,12 +55,21 @@ public partial class ChannelViewModel : ViewModelBase
         InitializeCommands();
     }
 
+    public ObservableCollection<MessageItemViewModel> Messages { get; } = new();
+    public ObservableCollection<MessageItemViewModel> FilteredMessages { get; } = new();
+
     public string Name => _channel?.Name ?? "Design Channel";
     public int Count => _channel?.Messages.Length ?? 0;
     public int SelectedCount => Messages.Count(m => m.IsSelected);
 
     public IEnumerable<ChannelMessage> SelectedMessages =>
         Messages.Where(m => m.IsSelected).Select(m => m.Message);
+
+    public ICommand SelectAllMsgsCommand { get; private set; } = null!;
+    public ICommand SelectNoMsgsCommand { get; private set; } = null!;
+    public ICommand ShowModalCommand { get; private set; } = null!;
+    public ICommand CloseModalCommand { get; private set; } = null!;
+    public ICommand ApplySelectionCommand { get; private set; } = null!;
 
     public event Action? SelectionChanged;
 
@@ -78,59 +90,62 @@ public partial class ChannelViewModel : ViewModelBase
         foreach (var msg in Messages)
             msg.IsSelected = false;
     }
-    
+
     private void InitializeCommands()
     {
-        SelectAllMsgsCommand = new RelayCommand(() => {
+        SelectAllMsgsCommand = new RelayCommand(() =>
+        {
             foreach (var msg in FilteredMessages)
                 msg.IsSelected = true;
         });
-        
-        SelectNoMsgsCommand = new RelayCommand(() => {
+
+        SelectNoMsgsCommand = new RelayCommand(() =>
+        {
             foreach (var msg in FilteredMessages)
                 msg.IsSelected = false;
         });
-        
+
         ShowModalCommand = new RelayCommand(() => IsVisible = true);
-        CloseModalCommand = new RelayCommand(() => IsVisible = false);
-        ApplySelectionCommand = new RelayCommand(() => {
-            UpdateSelection();
+        CloseModalCommand = new RelayCommand(async () =>
+        {
+            IsClosing = true;
+            await Task.Delay(200); // Wait for fade-out animation
             IsVisible = false;
+            IsClosing = false;
+        });
+        ApplySelectionCommand = new RelayCommand(async () =>
+        {
+            UpdateSelection();
+            IsClosing = true;
+            await Task.Delay(200); // Wait for fade-out animation
+            IsVisible = false;
+            IsClosing = false;
         });
     }
-    
-    public ICommand SelectAllMsgsCommand { get; private set; } = null!;
-    public ICommand SelectNoMsgsCommand { get; private set; } = null!;
-    public ICommand ShowModalCommand { get; private set; } = null!;
-    public ICommand CloseModalCommand { get; private set; } = null!;
-    public ICommand ApplySelectionCommand { get; private set; } = null!;
-    
+
     partial void OnMessageSearchTextChanged(string value)
     {
         FilterMessages();
     }
-    
+
     private void FilterMessages()
     {
         var search = MessageSearchText?.ToLower() ?? "";
         var filtered = string.IsNullOrEmpty(search)
             ? Messages.ToList()
-            : Messages.Where(m => m.Content.ToLower().Contains(search) || 
-                                 m.Id.ToLower().Contains(search)).ToList();
-        
+            : Messages.Where(m => m.Content.ToLower().Contains(search) ||
+                                  m.Id.ToLower().Contains(search)).ToList();
+
         FilteredMessages.Clear();
         foreach (var msg in filtered)
             FilteredMessages.Add(msg);
     }
-    
+
     private void UpdateSelection()
     {
         // Update the old selection array for compatibility
-        for (int i = 0; i < _selection.Length && i < Messages.Count; i++)
-        {
-            _selection[i] = Messages[i].IsSelected;
-        }
-        
+        for (var i = 0; i < _selection.Length && i < Messages.Count; i++) _selection[i] = Messages[i].IsSelected;
+
         OnPropertyChanged(nameof(SelectedCount));
         SelectionChanged?.Invoke();
     }

@@ -12,9 +12,16 @@ public partial class LoginViewModel : ViewModelBase
 {
     private readonly AuthService _auth = new();
     [ObservableProperty] private bool _isLoading;
+    [ObservableProperty] private bool _isVisible;
     [ObservableProperty] private string _status = "";
     [ObservableProperty] private string _token = "";
-    [ObservableProperty] private bool _isVisible;
+    
+    private bool _isClosing;
+    public bool IsClosing
+    {
+        get => _isClosing;
+        set => SetProperty(ref _isClosing, value);
+    }
 
     public bool HasStatus => !string.IsNullOrEmpty(Status);
     public bool HasUser => AuthUser != null;
@@ -74,13 +81,19 @@ public partial class LoginViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasStatus));
     }
 
-    private void Close()
+    private async void Close()
     {
+        IsClosing = true;
+        await Task.Delay(200); // Wait for fade-out animation
         IsVisible = false;
+        IsClosing = false;
     }
 
-    private void Continue()
+    private async void Continue()
     {
+        IsClosing = true;
+        await Task.Delay(200); // Wait for fade-out animation
         IsVisible = false;
+        IsClosing = false;
     }
 }
