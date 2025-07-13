@@ -11,16 +11,16 @@
             <SolidColorBrush Color="#4A4A4A" />
         </Border.BorderBrush>
         <Border.BorderThickness>1</Border.BorderThickness>
-        
+
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            
+
             <!-- Status Icon -->
-            <Border Grid.Column="0" Width="20" Height="20" CornerRadius="10" 
+            <Border Grid.Column="0" Width="20" Height="20" CornerRadius="10"
                     VerticalAlignment="Top" Margin="0,0,8,0">
                 <Border.Background>
                     <SolidColorBrush Color="{Binding IconColor}" />
@@ -29,22 +29,22 @@
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            Foreground="White" />
             </Border>
-            
+
             <!-- Message Content -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" 
+                <TextBlock Text="{Binding Message}" TextWrapping="Wrap"
                            FontSize="12" Foreground="#E0E0E0" />
-                <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}" 
+                <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}"
                            FontSize="10" Foreground="#999" Margin="0,2,0,0" />
             </StackPanel>
-            
+
             <!-- Close Button -->
-            <Button Grid.Column="2" Width="18" Height="18" Padding="0" 
+            <Button Grid.Column="2" Width="18" Height="18" Padding="0"
                     VerticalAlignment="Top" Margin="8,0,0,0"
                     Background="Transparent" BorderThickness="0"
                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                     Command="{Binding CloseCommand}">
-                <TextBlock Text="×" FontSize="12" FontWeight="Bold" 
+                <TextBlock Text="×" FontSize="12" FontWeight="Bold"
                            Foreground="#999" />
             </Button>
         </Grid>

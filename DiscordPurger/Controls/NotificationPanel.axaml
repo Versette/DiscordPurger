@@ -12,17 +12,17 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
+
             <Grid Grid.Row="0" Margin="0,0,0,8">
-                <TextBlock Text="Activity Log" FontSize="14" FontWeight="Bold" 
+                <TextBlock Text="Activity Log" FontSize="14" FontWeight="Bold"
                            Foreground="{DynamicResource TextBrush}" />
-                <Button Content="Clear All" Classes="DarkButton" 
+                <Button Content="Clear All" Classes="DarkButton"
                         Width="75" Height="26" FontSize="10"
                         HorizontalAlignment="Right"
                         Command="{Binding ClearAllCommand}" />
             </Grid>
-            
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" 
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl ItemsSource="{Binding Notifications}">
                     <ItemsControl.ItemsPanel>
