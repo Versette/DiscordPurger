@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:DiscordPurger.Controls"
+             x:Class="DiscordPurger.Controls.CenterOverlayModal"
+             x:DataType="controls:CenterOverlayModal">
+
+    <!-- Semi-transparent overlay -->
+    <Border Background="#80000000"
+            IsVisible="{Binding IsVisible, RelativeSource={RelativeSource AncestorType=controls:CenterOverlayModal}}"
+            Name="ModalOverlay"
+            Tag="{Binding IsClosing, RelativeSource={RelativeSource AncestorType=controls:CenterOverlayModal}}">
+        <Border.Styles>
+            <Style Selector="Border">
+                <Setter Property="Opacity" Value="0" />
+            </Style>
+            <Style Selector="Border[IsVisible=True]">
+                <Setter Property="Opacity" Value="1" />
+                <Style.Animations>
+                    <Animation Duration="0:0:0.2">
+                        <KeyFrame Cue="0%">
+                            <Setter Property="Opacity" Value="0" />
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="Opacity" Value="1" />
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+            <Style Selector="Border[Tag=True]">
+                <Setter Property="Opacity" Value="0" />
+                <Style.Animations>
+                    <Animation Duration="0:0:0.2">
+                        <KeyFrame Cue="0%">
+                            <Setter Property="Opacity" Value="1" />
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="Opacity" Value="0" />
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+        </Border.Styles>
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!-- Modal dialog -->
+            <Border Background="{DynamicResource DarkBg}"
+                    BorderBrush="{DynamicResource AccentBrush}"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Padding="20"
+                    Name="ModalContent"
+                    IsVisible="{Binding IsVisible, RelativeSource={RelativeSource AncestorType=controls:CenterOverlayModal}}"
+                    Tag="{Binding IsClosing, RelativeSource={RelativeSource AncestorType=controls:CenterOverlayModal}}"
+                    RenderTransformOrigin="50%,50%">
+
+                <!-- Content placeholder -->
+                <ContentPresenter
+                    Content="{Binding Content, RelativeSource={RelativeSource AncestorType=controls:CenterOverlayModal}}" />
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>
