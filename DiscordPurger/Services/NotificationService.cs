@@ -26,29 +26,38 @@ public partial class NotificationService : ObservableObject
             if (e.PropertyName == nameof(NotificationItem.IsVisible) && !notification.IsVisible)
             {
                 var item = Notifications.FirstOrDefault(n => n == notification);
-                if (item != null)
-                {
-                    Notifications.Remove(item);
-                }
+                if (item != null) Notifications.Remove(item);
             }
         };
-        
+
         Notifications.Insert(0, notification);
-        
+
         if (Notifications.Count > 50)
         {
             var toRemove = Notifications.Skip(50).ToList();
-            foreach (var item in toRemove)
-            {
-                Notifications.Remove(item);
-            }
+            foreach (var item in toRemove) Notifications.Remove(item);
         }
     }
 
-    public void AddInfo(string message) => AddNotification(message, NotificationType.Info);
-    public void AddSuccess(string message) => AddNotification(message, NotificationType.Success);
-    public void AddWarning(string message) => AddNotification(message, NotificationType.Warning);
-    public void AddError(string message) => AddNotification(message, NotificationType.Error);
+    public void AddInfo(string message)
+    {
+        AddNotification(message);
+    }
+
+    public void AddSuccess(string message)
+    {
+        AddNotification(message, NotificationType.Success);
+    }
+
+    public void AddWarning(string message)
+    {
+        AddNotification(message, NotificationType.Warning);
+    }
+
+    public void AddError(string message)
+    {
+        AddNotification(message, NotificationType.Error);
+    }
 
     private void ClearAll()
     {

@@ -15,10 +15,10 @@ public enum NotificationType
 
 public partial class NotificationItem : ObservableObject
 {
+    [ObservableProperty] private bool _isVisible = true;
     [ObservableProperty] private string _message = "";
     [ObservableProperty] private DateTime _timestamp;
     [ObservableProperty] private NotificationType _type;
-    [ObservableProperty] private bool _isVisible = true;
 
     public NotificationItem(string message, NotificationType type = NotificationType.Info)
     {

@@ -2,4 +2,9 @@
 
 namespace DiscordMessageManager.Models;
 
-public record ChannelMessage(ulong Id, DateTime Timestamp, string? Contents, string? Attachments, IMessageChannel Channel);
+public record ChannelMessage(
+    ulong Id,
+    DateTime Timestamp,
+    string? Contents,
+    string? Attachments,
+    IMessageChannel Channel);

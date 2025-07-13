@@ -9,12 +9,12 @@ namespace DiscordPurger.Services;
 
 public class AuthService
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         TypeInfoResolver = JsonTypeInfoResolver.Combine(
             new DefaultJsonTypeInfoResolver())
     };
-    
+
     private static readonly HttpClient Client = new()
     {
         BaseAddress = new Uri("https://discord.com/api/v9/"),
