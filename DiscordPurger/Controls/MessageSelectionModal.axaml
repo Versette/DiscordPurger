@@ -1,0 +1,137 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DiscordPurger"
+             xmlns:viewModels="clr-namespace:DiscordPurger.ViewModels"
+             x:Class="DiscordPurger.Controls.MessageSelectionModal"
+             x:DataType="viewModels:ChannelViewModel">
+
+    <!-- Semi-transparent overlay -->
+    <Border Background="#80000000" IsVisible="{Binding IsVisible}">
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!-- Modal dialog -->
+            <Border Background="{DynamicResource DarkBg}" 
+                    BorderBrush="{DynamicResource AccentBrush}" 
+                    BorderThickness="2" 
+                    CornerRadius="8" 
+                    Padding="20" 
+                    MinWidth="700" 
+                    MaxWidth="900"
+                    MinHeight="500"
+                    MaxHeight="700">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Name, StringFormat=Messages in #\{0\}}" 
+                                       FontSize="18" FontWeight="Bold" 
+                                       Foreground="{DynamicResource TextBrush}" />
+                            <TextBlock Text="{Binding Count, StringFormat='\{0\} total messages'}" 
+                                       FontSize="12" 
+                                       Foreground="{DynamicResource SubtleBrush}" />
+                        </StackPanel>
+                        <Button Content="×" FontSize="16" FontWeight="Bold" Width="28" Height="28"
+                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Background="Transparent" BorderThickness="0"
+                                Foreground="{DynamicResource TextBrush}"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                Command="{Binding CloseModalCommand}" />
+                    </Grid>
+
+                    <!-- Controls -->
+                    <Grid Grid.Row="1" Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBox Grid.Column="0" Text="{Binding MessageSearchText}" 
+                                 Classes="DarkTextBox" Watermark="Search messages..." 
+                                 Margin="0,0,10,0" />
+                        
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="All" Command="{Binding SelectAllMsgsCommand}" 
+                                    Classes="DarkButton" Width="50" Margin="0,0,5,0" />
+                            <Button Content="None" Command="{Binding SelectNoMsgsCommand}" 
+                                    Classes="DarkButton" Width="50" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Messages List -->
+                    <Border Grid.Row="2" Classes="DarkPanel" Padding="0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding FilteredMessages}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource MediumBg}" 
+                                                CornerRadius="3" Padding="8" Margin="2">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <!-- Checkbox -->
+                                                <CheckBox Grid.Column="0" 
+                                                          IsChecked="{Binding IsSelected}"
+                                                          VerticalAlignment="Top" 
+                                                          Margin="0,0,10,0" />
+                                                
+                                                <!-- Timestamp -->
+                                                <TextBlock Grid.Column="1" 
+                                                           Text="{Binding Timestamp, StringFormat={}{0:MM/dd HH:mm}}"
+                                                           FontSize="10" FontFamily="Consolas"
+                                                           Foreground="{DynamicResource MutedBrush}"
+                                                           VerticalAlignment="Top"
+                                                           Width="80" Margin="0,0,10,0" />
+                                                
+                                                <!-- Content -->
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="{Binding Content}" 
+                                                               TextWrapping="Wrap" FontSize="12"
+                                                               Foreground="{DynamicResource TextBrush}"
+                                                               MaxHeight="60" />
+                                                    <TextBlock Text="{Binding Id, StringFormat=ID: {0}}" 
+                                                               FontSize="9" FontFamily="Consolas"
+                                                               Foreground="{DynamicResource MutedBrush}"
+                                                               Margin="0,2,0,0" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- Footer -->
+                    <Grid Grid.Row="3" Margin="0,15,0,0">
+                        <TextBlock Text="{Binding SelectedCount, StringFormat=Selected: {0} messages}" 
+                                   FontWeight="Bold" Foreground="{DynamicResource TextBrush}"
+                                   VerticalAlignment="Center" />
+                        
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="Apply Selection" Command="{Binding ApplySelectionCommand}" 
+                                    Classes="DarkButton" Width="120" Margin="0,0,10,0" />
+                            <Button Content="Cancel" Command="{Binding CloseModalCommand}" 
+                                    Classes="DarkButton" Width="80" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

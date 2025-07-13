@@ -1,0 +1,73 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Styles.Resources>
+        <!-- Colors -->
+        <SolidColorBrush x:Key="DarkBg" Color="Black" />
+        <SolidColorBrush x:Key="MediumBg" Color="#111" />
+        <SolidColorBrush x:Key="BorderBrush" Color="White" />
+        <SolidColorBrush x:Key="DangerBrush" Color="#ff4444" />
+        <SolidColorBrush x:Key="SuccessBrush" Color="#66ff66" />
+        <SolidColorBrush x:Key="ErrorBrush" Color="#ff6666" />
+        <SolidColorBrush x:Key="InfoBrush" Color="#6666ff" />
+        <SolidColorBrush x:Key="AccentBrush" Color="White" />
+        <SolidColorBrush x:Key="TextBrush" Color="White" />
+        <SolidColorBrush x:Key="SubtleBrush" Color="#ccc" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#999" />
+    </Styles.Resources>
+
+    <!-- Button Style -->
+    <Style Selector="Button.DarkButton">
+        <Setter Property="Background" Value="{DynamicResource MediumBg}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <!-- TextBox Style -->
+    <Style Selector="TextBox.DarkTextBox">
+        <Setter Property="Background" Value="{DynamicResource MediumBg}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    </Style>
+
+    <!-- Dark Panel -->
+    <Style Selector="Border.DarkPanel">
+        <Setter Property="Background" Value="Black" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="Padding" Value="10" />
+    </Style>
+
+    <!-- ListBox Style -->
+    <Style Selector="ListBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <!-- ListBox Item Style -->
+    <Style Selector="ListBoxItem">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+    </Style>
+
+    <!-- ListBox Item Selected State -->
+    <Style Selector="ListBoxItem:selected">
+        <Setter Property="Background" Value="#33FFFFFF" />
+    </Style>
+
+    <!-- ListBox Item Hover State -->
+    <Style Selector="ListBoxItem:pointerover">
+        <Setter Property="Background" Value="#1AFFFFFF" />
+    </Style>
+</Styles>

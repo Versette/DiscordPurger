@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:DiscordPurger.Controls"
+             xmlns:models="clr-namespace:DiscordPurger.Models"
+             xmlns:services="clr-namespace:DiscordPurger.Services"
+             x:Class="DiscordPurger.Controls.NotificationPanel"
+             x:DataType="services:NotificationService">
+
+    <Border Classes="DarkPanel" Padding="8">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <Grid Grid.Row="0" Margin="0,0,0,8">
+                <TextBlock Text="Activity Log" FontSize="14" FontWeight="Bold" 
+                           Foreground="{DynamicResource TextBrush}" />
+                <Button Content="Clear All" Classes="DarkButton" 
+                        Width="75" Height="26" FontSize="10"
+                        HorizontalAlignment="Right"
+                        Command="{Binding ClearAllCommand}" />
+            </Grid>
+            
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" 
+                          HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding Notifications}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="models:NotificationItem">
+                            <controls:NotificationBubble DataContext="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</UserControl>

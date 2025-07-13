@@ -1,0 +1,75 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DiscordPurger"
+             xmlns:viewModels="clr-namespace:DiscordPurger.ViewModels"
+             x:Class="DiscordPurger.Controls.LoginModal"
+             x:DataType="viewModels:LoginViewModel">
+
+    <!-- Semi-transparent overlay -->
+    <Border Background="#80000000" IsVisible="{Binding IsVisible}">
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!-- Modal dialog -->
+            <Border Background="{DynamicResource DarkBg}" 
+                    BorderBrush="{DynamicResource AccentBrush}" 
+                    BorderThickness="2" 
+                    CornerRadius="8" 
+                    Padding="20" 
+                    MinWidth="400" 
+                    MaxWidth="500">
+                <StackPanel>
+                    <!-- Header -->
+                    <Grid Margin="0,0,0,20">
+                        <TextBlock Text="Discord Login" FontSize="18" FontWeight="Bold" 
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource TextBrush}" />
+                        <Button Content="×" FontSize="16" FontWeight="Bold" Width="28" Height="28"
+                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Background="Transparent" BorderThickness="0"
+                                Foreground="{DynamicResource TextBrush}"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                Command="{Binding CloseCommand}" />
+                    </Grid>
+
+                    <!-- Content -->
+                    <Border Classes="DarkPanel" Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="Token Authentication" FontSize="14" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextBrush}" Margin="0,0,0,10" />
+                            <TextBox Text="{Binding Token}" Classes="DarkTextBox"
+                                     Watermark="Enter Discord token..." PasswordChar="*"
+                                     IsEnabled="{Binding !IsLoading}" />
+                            <Button Content="Login" Command="{Binding LoginCommand}" Margin="0,15,0,0"
+                                    Classes="DarkButton" IsEnabled="{Binding !IsLoading}" 
+                                    HorizontalAlignment="Center" Width="120" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Status -->
+                    <Border Classes="DarkPanel" Margin="0,15,0,0" Padding="10"
+                            IsVisible="{Binding HasStatus}">
+                        <TextBlock Text="{Binding Status}" Foreground="{DynamicResource TextBrush}" 
+                                   TextWrapping="Wrap" TextAlignment="Center" />
+                    </Border>
+
+                    <!-- Progress -->
+                    <ProgressBar IsVisible="{Binding IsLoading}" IsIndeterminate="True" 
+                                 Height="4" Margin="0,15,0,0"
+                                 Background="#333" Foreground="{DynamicResource AccentBrush}" />
+
+                    <!-- Success info -->
+                    <Border Classes="DarkPanel" Margin="0,15,0,0" Padding="15"
+                            IsVisible="{Binding HasUser}"
+                            Background="Green">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="✓ Logged in successfully!" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextBrush}" 
+                                       VerticalAlignment="Center" />
+                            <Button Content="Continue" Command="{Binding ContinueCommand}" 
+                                    Classes="DarkButton" Margin="15,0,0,0" Width="80" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

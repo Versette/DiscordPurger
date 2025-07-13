@@ -1,0 +1,98 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Universal Custom ScrollBar with AccentColor -->
+    <Style Selector="ScrollBar:vertical">
+        <Setter Property="Width" Value="6" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="Transparent" Width="6">
+                    <Track Name="PART_Track"
+                           Orientation="Vertical"
+                           IsDirectionReversed="True"
+                           Focusable="False"
+                           Minimum="{TemplateBinding Minimum}"
+                           Maximum="{TemplateBinding Maximum}"
+                           Value="{TemplateBinding Value, Mode=TwoWay}"
+                           ViewportSize="{TemplateBinding ViewportSize}"
+                           Margin="0">
+                        <Track.DecreaseButton>
+                            <RepeatButton Name="PART_LineUpButton"
+                                          Classes="repeat"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          Focusable="False"
+                                          Height="0" />
+                        </Track.DecreaseButton>
+                        <Track.IncreaseButton>
+                            <RepeatButton Name="PART_LineDownButton"
+                                          Classes="repeat"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          Focusable="False"
+                                          Height="0" />
+                        </Track.IncreaseButton>
+                        <Track.Thumb>
+                            <Thumb Name="PART_Thumb" />
+                        </Track.Thumb>
+                    </Track>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="ScrollBar:vertical Thumb">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="MinHeight" Value="30" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Opacity" Value="1" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Opacity="{TemplateBinding Opacity}"
+                        Margin="0,2" />
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- ListBox style with scrollbar that doesn't overlay content -->
+    <Style Selector="ListBox.NoOverlayScrollBar">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                    <ScrollViewer Name="PART_ScrollViewer"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Padding="{TemplateBinding Padding}">
+                        <ItemsPresenter Name="PART_ItemsPresenter"
+                                        ItemsPanel="{TemplateBinding ItemsPanel}"
+                                        Margin="0,0,12,0" />
+                    </ScrollViewer>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- Position ScrollBar to the right for NoOverlayScrollBar ListBox -->
+    <Style Selector="ListBox.NoOverlayScrollBar /template/ ScrollViewer /template/ ScrollBar:vertical">
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Margin" Value="0,0,-4,0" />
+    </Style>
+
+    <Style Selector="ScrollBar:vertical Thumb:pointerover">
+        <Setter Property="Opacity" Value="0.7" />
+    </Style>
+
+    <Style Selector="ScrollBar:vertical Thumb:pressed">
+        <Setter Property="Opacity" Value="0.5" />
+    </Style>
+
+</Styles>
