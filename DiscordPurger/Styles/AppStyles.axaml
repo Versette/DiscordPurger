@@ -4,7 +4,6 @@
     <Styles.Resources>
         <!-- Colors -->
         <SolidColorBrush x:Key="DarkBg" Color="Black" />
-        <SolidColorBrush x:Key="MediumBg" Color="#111" />
         <SolidColorBrush x:Key="BorderBrush" Color="White" />
         <SolidColorBrush x:Key="DangerBrush" Color="#ff4444" />
         <SolidColorBrush x:Key="SuccessBrush" Color="#66ff66" />
@@ -18,7 +17,7 @@
 
     <!-- Button Style -->
     <Style Selector="Button.DarkButton">
-        <Setter Property="Background" Value="{DynamicResource MediumBg}" />
+        <Setter Property="Background" Value="{DynamicResource DarkBg}" />
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
         <Setter Property="BorderThickness" Value="2" />
@@ -57,9 +56,42 @@
 
     <!-- TextBox Style -->
     <Style Selector="TextBox.DarkTextBox">
-        <Setter Property="Background" Value="{DynamicResource MediumBg}" />
+        <Setter Property="Background" Value="{DynamicResource DarkBg}" />
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="SelectionBrush" Value="White" />
+        <Setter Property="SelectionForegroundBrush" Value="Black" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Padding="{TemplateBinding Padding}">
+                    <TextPresenter Name="PART_TextPresenter"
+                                   Text="{TemplateBinding Text}"
+                                   CaretIndex="{TemplateBinding CaretIndex}"
+                                   SelectionStart="{TemplateBinding SelectionStart}"
+                                   SelectionEnd="{TemplateBinding SelectionEnd}"
+                                   TextWrapping="{TemplateBinding TextWrapping}"
+                                   PasswordChar="{TemplateBinding PasswordChar}"
+                                   RevealPassword="{TemplateBinding RevealPassword}"
+                                   SelectionBrush="{TemplateBinding SelectionBrush}"
+                                   SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
+                                   CaretBrush="{TemplateBinding CaretBrush}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- TextBox Disabled Style -->
+    <Style Selector="TextBox.DarkTextBox:disabled">
+        <Setter Property="Opacity" Value="0.5" />
     </Style>
 
     <!-- Dark Panel -->

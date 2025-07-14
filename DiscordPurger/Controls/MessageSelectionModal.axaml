@@ -41,8 +41,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBox Grid.Column="0" Text="{Binding MessageSearchText}"
-                                 Classes="DarkTextBox" Watermark="Search messages..."
+                        <TextBox Grid.Column="0" Text="{Binding MessageSearchText}" Classes="DarkTextBox"
+                                 Watermark="Search messages..."
                                  Margin="0,0,10,0" />
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
