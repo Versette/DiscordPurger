@@ -1,0 +1,191 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  SOLUTION_PATH: 'DiscordPurger.sln'
+  PROJECT_PATH: 'DiscordPurger.Desktop/DiscordPurger.Desktop.csproj'
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+    
+    - name: Build
+      run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
+    
+    - name: Test
+      run: dotnet test ${{ env.SOLUTION_PATH }} --no-build --configuration Release --verbosity normal
+
+  auto-release:
+    name: Auto Release
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Generate version
+      id: version
+      run: |
+        # Get latest tag or default to v0.0.0
+        LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+        echo "Latest tag: $LATEST_TAG"
+        
+        # Extract version numbers (remove 'v' prefix)
+        VERSION=${LATEST_TAG#v}
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+        
+        # Default values if parsing fails
+        MAJOR=${MAJOR:-0}
+        MINOR=${MINOR:-0}
+        PATCH=${PATCH:-0}
+        
+        # Increment patch version
+        NEW_PATCH=$((PATCH + 1))
+        NEW_VERSION="v${MAJOR}.${MINOR}.${NEW_PATCH}"
+        
+        echo "New version: $NEW_VERSION"
+        echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Create tag
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag ${{ steps.version.outputs.version }}
+        git push origin ${{ steps.version.outputs.version }}
+    
+    - name: Create release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        release_name: Release ${{ steps.version.outputs.version }}
+        body: |
+          Auto-generated release from master branch
+          
+          **Changes in this release:**
+          - Merged PR: ${{ github.event.head_commit.message }}
+          - Commit: ${{ github.sha }}
+        draft: false
+        prerelease: false
+
+  publish:
+    name: Publish NativeAOT
+    runs-on: ${{ matrix.os }}
+    needs: auto-release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            artifact: win-x64
+          - os: windows-latest
+            rid: win-arm64
+            artifact: win-arm64
+          - os: ubuntu-latest
+            rid: linux-x64
+            artifact: linux-x64
+          - os: ubuntu-latest
+            rid: linux-arm64
+            artifact: linux-arm64
+          - os: macos-latest
+            rid: osx-x64
+            artifact: osx-x64
+          - os: macos-latest
+            rid: osx-arm64
+            artifact: osx-arm64
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Publish NativeAOT
+      run: |
+        dotnet publish ${{ env.PROJECT_PATH }} \
+          --configuration Release \
+          --runtime ${{ matrix.rid }} \
+          --self-contained true \
+          --output ./publish/${{ matrix.artifact }} \
+          /p:PublishAot=true \
+          /p:StripSymbols=true \
+          /p:PublishTrimmed=true \
+          /p:AssemblyVersion=${{ needs.auto-release.outputs.version }} \
+          /p:FileVersion=${{ needs.auto-release.outputs.version }} \
+          /p:InformationalVersion=${{ needs.auto-release.outputs.version }}
+    
+    - name: Create archive (Windows)
+      if: startsWith(matrix.os, 'windows')
+      run: |
+        cd publish/${{ matrix.artifact }}
+        7z a ../../${{ matrix.artifact }}.zip *
+    
+    - name: Create archive (Unix)
+      if: "!startsWith(matrix.os, 'windows')"
+      run: |
+        cd publish/${{ matrix.artifact }}
+        tar -czf ../../${{ matrix.artifact }}.tar.gz *
+    
+    - name: Get release upload URL
+      id: get_release
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { data: release } = await github.rest.repos.getReleaseByTag({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            tag: '${{ needs.auto-release.outputs.version }}'
+          });
+          return release.upload_url;
+    
+    - name: Upload release asset (Windows)
+      if: startsWith(matrix.os, 'windows')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release.outputs.result }}
+        asset_path: ./${{ matrix.artifact }}.zip
+        asset_name: ${{ github.event.repository.name }}-${{ needs.auto-release.outputs.version }}-${{ matrix.artifact }}.zip
+        asset_content_type: application/zip
+    
+    - name: Upload release asset (Unix)
+      if: "!startsWith(matrix.os, 'windows')"
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release.outputs.result }}
+        asset_path: ./${{ matrix.artifact }}.tar.gz
+        asset_name: ${{ github.event.repository.name }}-${{ needs.auto-release.outputs.version }}-${{ matrix.artifact }}.tar.gz
+        asset_content_type: application/gzip
