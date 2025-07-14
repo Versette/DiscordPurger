@@ -28,6 +28,31 @@
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="FontSize" Value="12" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Padding="{TemplateBinding Padding}">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      TextBlock.Foreground="{TemplateBinding Foreground}"
+                                      TextBlock.FontSize="{TemplateBinding FontSize}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- Button MouseOver Style -->
+    <Style Selector="Button.DarkButton:pointerover">
+        <Setter Property="Opacity" Value="0.7" />
+    </Style>
+
+    <!-- Button Disabled Style -->
+    <Style Selector="Button.DarkButton:disabled">
+        <Setter Property="Opacity" Value="0.5" />
     </Style>
 
     <!-- TextBox Style -->
